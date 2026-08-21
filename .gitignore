@@ -1,0 +1,11 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local environment & scratch files
+*.ps1
+PROFILE_README.md
+.env
+.idea/
+.vscode/
