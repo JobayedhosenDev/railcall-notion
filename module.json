@@ -1,0 +1,255 @@
+{
+  "slug": "workspace/notion",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Notion workspace integration for RailCall. Governed query, page, block, and database operations with signed airlock receipts. Tag: contest:2026Q3",
+  "auth": {
+    "type": "api_key",
+    "env_var": "NOTION_API_KEY"
+  },
+  "license_required": false,
+  "commands": [
+    {
+      "name": "search",
+      "description": "Search workspace pages and databases by text query with filter options.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Text query string to match titles and content."
+          },
+          "filter_value": {
+            "type": "string",
+            "enum": ["page", "database"],
+            "description": "Filter results by object type ('page' or 'database')."
+          },
+          "sort_direction": {
+            "type": "string",
+            "enum": ["ascending", "descending"],
+            "description": "Sort order by last_edited_time (default: descending)."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Number of results to return (1-100, default: 20)."
+          }
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_page",
+      "description": "Retrieve page metadata and property details for a given page ID.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "description": "The unique UUID of the Notion page."
+          }
+        },
+        "required": ["page_id"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "query_database",
+      "description": "Query a Notion database with structured filters, sorting, and pagination.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "description": "The unique UUID of the Notion database."
+          },
+          "filter": {
+            "type": "object",
+            "description": "Notion filter object (e.g. {'property': 'Status', 'select': {'equals': 'In Progress'}})."
+          },
+          "sorts": {
+            "type": "array",
+            "description": "List of sort criteria (e.g. [{'property': 'Created', 'direction': 'descending'}])."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Maximum number of records to return (1-100, default: 50)."
+          }
+        },
+        "required": ["database_id"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_block_children",
+      "description": "Retrieve child content blocks of a parent page or container block.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "The ID of the parent page or block."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Maximum child blocks to retrieve (1-100, default: 50)."
+          }
+        },
+        "required": ["block_id"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_database",
+      "description": "Retrieve database schema definition including all columns, types, and options.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "description": "The unique UUID of the Notion database."
+          }
+        },
+        "required": ["database_id"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "create_page",
+      "description": "Create a new page inside a parent database or parent page.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent_type": {
+            "type": "string",
+            "enum": ["database_id", "page_id"],
+            "description": "Type of parent container ('database_id' or 'page_id')."
+          },
+          "parent_id": {
+            "type": "string",
+            "description": "UUID of the parent database or page."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the new page."
+          },
+          "properties": {
+            "type": "object",
+            "description": "Key-value dictionary of page properties matching the database schema."
+          },
+          "icon_emoji": {
+            "type": "string",
+            "description": "Single emoji character for the page icon (e.g. '🚀')."
+          },
+          "cover_url": {
+            "type": "string",
+            "description": "Public HTTP URL for page cover image."
+          },
+          "content_blocks": {
+            "type": "array",
+            "description": "List of simple content blocks to insert into page body on creation."
+          }
+        },
+        "required": ["parent_type", "parent_id", "title"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_page",
+      "description": "Update properties, title, or icon of an existing Notion page.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "description": "UUID of the page to update."
+          },
+          "title": {
+            "type": "string",
+            "description": "New page title (optional)."
+          },
+          "properties": {
+            "type": "object",
+            "description": "Dictionary of property updates matching database schema."
+          },
+          "icon_emoji": {
+            "type": "string",
+            "description": "Update emoji icon."
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Set to true to archive, false to unarchive."
+          }
+        },
+        "required": ["page_id"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "append_blocks",
+      "description": "Append structured content blocks (paragraphs, headings, callouts, code, to-dos) to a page.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "UUID of the parent page or block to append children to."
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "List of simplified or raw Notion block objects to append."
+          }
+        },
+        "required": ["block_id", "blocks"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_block",
+      "description": "Update the content, text, or checked state of a specific Notion block.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "UUID of the target block."
+          },
+          "type": {
+            "type": "string",
+            "description": "Block type (e.g. 'paragraph', 'heading_1', 'callout', 'to_do')."
+          },
+          "text": {
+            "type": "string",
+            "description": "New text content for the block."
+          },
+          "checked": {
+            "type": "boolean",
+            "description": "Checked state if block type is 'to_do'."
+          }
+        },
+        "required": ["block_id"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "archive_page",
+      "description": "Archive (soft-delete) or restore a Notion page or database item.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "description": "UUID of the page to archive or restore."
+          },
+          "archive": {
+            "type": "boolean",
+            "description": "true to archive, false to restore (default: true)."
+          }
+        },
+        "required": ["page_id"]
+      },
+      "side_effects": "external"
+    }
+  ]
+}
