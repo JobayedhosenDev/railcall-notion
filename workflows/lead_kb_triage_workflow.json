@@ -3,7 +3,7 @@
   "slug": "workspace/governed-kb-incident-triage",
   "version": "1.0.0",
   "description": "Autonomous AI Incident & Lead Triage workflow governed by RailCall airlock receipts. Queries knowledge base, drafts resolution tasks, and appends execution logs with human approval gates. Tag: contest:2026Q3",
-  "steps": [
+  "nodes": [
     {
       "id": "kb_search",
       "action": "workspace/notion.query_database",
@@ -23,6 +23,16 @@
       "description": "Append AI-generated resolution steps and code blocks to the task page.",
       "side_effects": "external",
       "airlock_gated": true
+    }
+  ],
+  "edges": [
+    {
+      "from": "kb_search",
+      "to": "create_sprint_task"
+    },
+    {
+      "from": "create_sprint_task",
+      "to": "append_execution_logs"
     }
   ]
 }
